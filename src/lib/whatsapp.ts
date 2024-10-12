@@ -1,13 +1,12 @@
-import { create, Whatsapp } from "venom-bot";
+import { create, Message } from "venom-bot";
 
-async function start(client: Whatsapp) {
-  console.log("WhatsApp bot started");
+export async function startWhatsappClient() {
+  const sessionName = new Date().toISOString().replace(/[:.]/g, "-");
+  const client = await create({
+    session: `session-${sessionName}`,
+  });
 
-  // Listen for new messages
-  client.onMessage(async (message) => {
-    console.log("Received a message:", message);
-
-    // Check if the message is an image
+  async function sampleOnMessage(message: Message) {
     if (message.isMedia || message.isMMS) {
       try {
         // Download media (image)
@@ -15,9 +14,6 @@ async function start(client: Whatsapp) {
 
         if (media) {
           console.log("Media downloaded:", media);
-
-          // Optionally, upload the media to cloud storage
-          // Example: uploadToCloud(media)
 
           // Respond back to the user
           await client.sendText(
@@ -32,16 +28,23 @@ async function start(client: Whatsapp) {
       // Handle non-media messages (e.g., text messages)
       await client.sendText(message.from, "Please send a receipt image.");
     }
-  });
-}
+  }
 
-export function createWhatsAppBot() {
-  create({
-    session: "test-session",
-  })
-    .then((client) => start(client))
-    .catch((error) => {
-      console.error("Error starting bot:", error);
+  async function onMessage() {
+    // 1. Check if message is a receipt
+    // 2. If possible, add a new row to the DB: https://orm.drizzle.team/docs/data-querying
+    // 3. For later: use AI to respond
+  }
+
+  async function _startClient() {
+    console.log("WhatsApp bot started...");
+
+    client.onMessage(async (message) => {
+      console.log("Received Message:", message);
+
+      sampleOnMessage(message);
     });
-}
+  }
 
+  _startClient();
+}

@@ -1,8 +1,7 @@
-import { createWhatsAppBot } from "~/lib/whatsapp";
-
+import { startWhatsappClient } from "~/lib/whatsapp";
 
 function main() {
-    createWhatsAppBot()
+  startWhatsappClient();
 }
 
 main();
