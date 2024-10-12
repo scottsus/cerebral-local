@@ -43,35 +43,42 @@ export async function startWhatsappClient() {
     // 2. If possible, add a new row to the DB: https://orm.drizzle.team/docs/data-querying
     // 3. For later: use AI to respond
 
+    
+
     console.log("Received whatsapp message")
 
     const receiptSchema = z.object({
-      id: z.string().uuid(),
       buyer: z.string(),
       productDescription: z.string(),
       purchase_date: z.string(),
       address: z.string(),
-      createdAt: z.string(),
-      updatedAt: z.string(),
-      success: z.boolean()
+      // createdAt: z.string(),
+      // updatedAt: z.string(),
+      success: z.boolean(),
+      reason: z.string().optional()
     });
+
+    console.log("Message body: ")
+    console.log(message.body)
   
     const result = await generateObject({
       model: openai('gpt-4-turbo'),
       schema: receiptSchema,
-      prompt: message.content,
+      prompt: message.body,
       system: `You are an AI assistant helping a business taking its orders. These are the tasks you are going to do:
         1. Receive messages.
         2. Return a receipt depending on the message contents, with an extra field: success = true or false
           a. If the message does not conform to the expected receipt, the success field should be false
-          b. Return the receipt in a string object format
+          b. If success = false, put another field, reason, explaining why it failed
+          c. Return the receipt in a string object format
       
         You should understand each business receipt models accordingly. 
         The business you are representing is: ${BUSINESS_DESCRIPTION}
         The receipt of the business you are representing should consist of: ${BUSINESS_RECEIPT}`,
     });
 
-    console.log(result)
+    console.log("Receipt Result: ")
+    console.log(result.object)
 
     // return result.toAIStreamResponse()
     
