@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "env:dev": "dotenv -e .env",
-    "server": "tsx server.ts",
+    "server": "yarn env:dev tsx server.ts",
     "studio": "yarn env:dev drizzle-kit studio"
   },
   "dependencies": {
