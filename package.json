@@ -10,6 +10,8 @@
     "studio": "yarn env:dev drizzle-kit studio"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "ai": "^3.4.9",
     "dotenv-cli": "^7.4.2",
     "drizzle-kit": "^0.22.7",
     "drizzle-orm": "^0.31.2",

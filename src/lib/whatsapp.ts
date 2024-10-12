@@ -1,4 +1,10 @@
 import { create, Message } from "venom-bot";
+import { streamText, generateObject } from 'ai';
+import { openai } from '@ai-sdk/openai';
+import { z } from 'zod';
+
+const BUSINESS_DESCRIPTION = "An online flower shop"
+const BUSINESS_RECEIPT = "Buyer's name, product description (name, and qty), date of purchase, address"
 
 export async function startWhatsappClient() {
   const sessionName = new Date().toISOString().replace(/[:.]/g, "-");
@@ -30,10 +36,41 @@ export async function startWhatsappClient() {
     }
   }
 
-  async function onMessage() {
+  async function onMessage(message: Message) {
+    // Upload db here
     // 1. Check if message is a receipt
     // 2. If possible, add a new row to the DB: https://orm.drizzle.team/docs/data-querying
     // 3. For later: use AI to respond
+
+    const receiptSchema = z.object({
+      id: z.string().uuid(),
+      buyer: z.string(),
+      productDescription: z.string(),
+      purchase_date: z.string(),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+      success: z.boolean()
+    });
+  
+    const result = await generateObject({
+      model: openai('gpt-4-turbo'),
+      schema: receiptSchema,
+      prompt: `You are an AI assistant helping a business taking its orders. These are the tasks you are going to do:
+        1. Receive messages.
+        2. Return a receipt with an extra field: success = true or false
+          a. If the message does not conform to the expected receipt, the success field should be false
+          b. Return the receipt in a string object format
+      
+        You should understand each business receipt models accordingly. 
+        The business you are representing is: ${BUSINESS_DESCRIPTION}
+        The receipt of the business you are representing should consist of: ${BUSINESS_RECEIPT}`,
+      output: 'object',
+    });
+
+    console.log(result)
+
+    // return result.toAIStreamResponse()
+    
   }
 
   async function _startClient() {
@@ -42,7 +79,8 @@ export async function startWhatsappClient() {
     client.onMessage(async (message) => {
       console.log("Received Message:", message);
 
-      sampleOnMessage(message);
+      // sampleOnMessage(message);
+      onMessage(message);
     });
   }
 
