@@ -42,6 +42,8 @@ export async function startWhatsappClient() {
     // 2. If possible, add a new row to the DB: https://orm.drizzle.team/docs/data-querying
     // 3. For later: use AI to respond
 
+    console.log("Received whatsapp message")
+
     const receiptSchema = z.object({
       id: z.string().uuid(),
       buyer: z.string(),
