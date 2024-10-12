@@ -1,0 +1,21 @@
+{
+  "name": "localhost2",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "scott susanto <susantoscott@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "server": "tsx server.ts"
+  },
+  "dependencies": {
+    "drizzle-kit": "^0.22.7",
+    "drizzle-orm": "^0.31.2",
+    "prettier": "^3.3.3",
+    "venom-bot": "^5.1.0"
+  },
+  "devDependencies": {
+    "pg": "^8.13.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}
