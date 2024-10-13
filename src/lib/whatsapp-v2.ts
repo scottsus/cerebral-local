@@ -2,7 +2,10 @@ import { receipts } from "~/schema/receipt";
 import { db } from "~/server/db";
 import { create, Message, Whatsapp } from "venom-bot";
 
+import { updateListenerStatus } from "./db";
 import { generateReceipt } from "./openai";
+
+let client: Whatsapp | null;
 
 export async function initClientAndGetQRCode({
   userId,
@@ -13,7 +16,10 @@ export async function initClientAndGetQRCode({
   businessDescription: string;
   logQR?: boolean;
 }) {
-  let client: Whatsapp | null;
+  if (client) {
+    await client.close();
+    client = null;
+  }
 
   async function onMessage(message: Message) {
     console.log("Received:", message);
@@ -62,22 +68,29 @@ export async function initClientAndGetQRCode({
   }
 
   return new Promise((res) => {
-    create(
-      userId,
-      (base64QRCode) => {
-        res(base64QRCode);
-      },
-      (statusSession) => {
-        if (statusSession === "isLogged") {
-          res("Already logged in");
-        }
-      },
-      { logQR },
-    ).then((createdClient) => {
-      console.log("Initializing WhatsApp Venom...");
-      client = createdClient;
+    updateListenerStatus({ userId, status: "INITIALIZING" })
+      .then(() =>
+        create(
+          userId,
+          (base64QRCode) => {
+            res(base64QRCode);
+          },
+          (statusSession) => {
+            if (statusSession === "isLogged") {
+              res("Already logged in");
+            }
+          },
+          { logQR },
+        ),
+      )
+      .then((createdClient) => {
+        updateListenerStatus({ userId, status: "RUNNING" });
+        client = createdClient;
+      })
+      .then(() => {
+        console.log("Initializing WhatsApp Venom...");
 
-      client.onMessage(onMessage);
-    });
+        client!.onMessage(onMessage);
+      });
   });
 }

@@ -3,7 +3,7 @@ import express from "express";
 import { initClientAndGetQRCode } from "./lib/whatsapp-v2";
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4269;
 
 app.get("/connect/:userId", async (req, res) => {
   // This must correspond with the userId in the DB

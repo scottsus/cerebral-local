@@ -22,6 +22,7 @@ export const users = pgTable(
       .default(sql`gen_random_uuid()`)
       .primaryKey()
       .notNull(),
+    businessName: text("business_name"),
     name: text("name"),
     email: text("email"),
     phoneNumber: varchar("phone_number", { length: 15 }),
