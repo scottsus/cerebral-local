@@ -88,8 +88,7 @@ export async function startWhatsappClient() {
           productDescription: result.object.productDescription,
           purchase_date: new Date(result.object.purchase_date), 
           address: result.object.address,
-          phone_num: '', 
-          flagged: false, 
+          phone_num: message.sender.id.split('@')[0], 
           additional_data: '', 
         });
         console.log("Receipt successfully inserted into the database.");
@@ -103,15 +102,18 @@ export async function startWhatsappClient() {
           productDescription: result.object.productDescription || 'Unknown',
           purchase_date: new Date(), 
           address: result.object.address || 'Unknown',
-          phone_num: '', 
-          flagged: true, 
+          phone_num: message.sender.id.split('@')[0], 
           additional_data: result.object.reason || 'No reason provided', 
+          status: "Flagged"
         });
         console.log("Receipt flagged and inserted into the database with additional data.");
       } catch (error) {
         console.error("Failed to insert flagged receipt into the database:", error);
       }
     }
+
+    console.log("Returning response:")
+    return "test response"
   }
 
   async function _startClient() {

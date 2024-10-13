@@ -1,25 +1,22 @@
 import { sql } from "drizzle-orm";
 import {
-  boolean,
   index,
   pgTable,
+  serial,
   text,
   timestamp,
-  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
 export const receipts = pgTable(
   "receipts",
   {
-    id: uuid("id")
-      .default(sql`gen_random_uuid()`)
+    id: serial("id")
       .primaryKey()
       .notNull(),
     buyer: varchar("buyer", { length: 256 }),
     productDescription: text("product_description"),
     phone_num: varchar("phone_num", { length: 15 }),
-    flagged: boolean("flagged").default(false),
     additional_data: text("additional_data"), 
     address: varchar("address", { length: 256 }),
     purchase_date: timestamp("purchase_date", { withTimezone: true })
