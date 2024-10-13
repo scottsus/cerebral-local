@@ -1,5 +1,5 @@
 import { create, Message } from "venom-bot";
-import { streamText, generateObject } from 'ai';
+import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
@@ -39,11 +39,10 @@ export async function startWhatsappClient() {
   async function onMessage(message: Message) {
     // Upload db here
     //get push name/phone number
+    //check intervie]
     // 1. Check if message is a receipt
     // 2. If possible, add a new row to the DB: https://orm.drizzle.team/docs/data-querying
     // 3. For later: use AI to respond
-
-    
 
     console.log("Received whatsapp message")
 
@@ -60,7 +59,7 @@ export async function startWhatsappClient() {
 
     console.log("Message body: ")
     console.log(message.body)
-  
+   
     const result = await generateObject({
       model: openai('gpt-4-turbo'),
       schema: receiptSchema,
