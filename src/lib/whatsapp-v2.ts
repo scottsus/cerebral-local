@@ -44,7 +44,6 @@ export async function initClientAndGetQRCode({
           buyer: generatedReceipt.buyer,
           phoneNumber: senderPhone,
           address: generatedReceipt.address,
-          purchaseDate: new Date(generatedReceipt.purchaseDate),
           productDescription: generatedReceipt.productDescription,
           additionalData: "",
         });
@@ -55,7 +54,6 @@ export async function initClientAndGetQRCode({
           buyer: generatedReceipt.buyer ?? "-",
           phoneNumber: senderPhone,
           address: generatedReceipt.address ?? "-",
-          purchaseDate: new Date(),
           productDescription: generatedReceipt.productDescription ?? "-",
           status: "FLAGGED",
           additionalData:

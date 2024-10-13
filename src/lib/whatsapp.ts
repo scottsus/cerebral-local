@@ -7,7 +7,7 @@ import { z } from "zod";
 
 const BUSINESS_DESCRIPTION = "An online flower shop";
 export const BUSINESS_RECEIPT =
-  "Buyer's name, product description (name, and qty), date of purchase, address";
+  "Buyer's name, product description (name, and qty), address";
 
 export async function startWhatsappClient({ userId }: { userId: string }) {
   const sessionName = new Date().toISOString().replace(/[:.]/g, "-");

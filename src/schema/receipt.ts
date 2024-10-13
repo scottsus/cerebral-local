@@ -29,9 +29,9 @@ export const receipts = pgTable(
     buyer: text("buyer"),
     phoneNumber: varchar("phone_number", { length: 15 }),
     address: text("address"),
-    purchaseDate: timestamp("purchase_date", { withTimezone: true })
-      .default(sql`CURRENT_TIMESTAMP`)
-      .notNull(),
+    purchaseDate: timestamp("purchase_date", { withTimezone: true }).default(
+      sql`CURRENT_TIMESTAMP`,
+    ),
     productDescription: text("product_description"),
     additionalData: text("additional_data"),
     status: statusEnum("status").default("INPROGRESS"),
