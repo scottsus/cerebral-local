@@ -10,7 +10,8 @@
     "start": "yarn env:dev tsx src/server.ts",
     "db:studio": "yarn env:dev drizzle-kit studio",
     "db:generate": "yarn drizzle-kit generate",
-    "db:migrate": "yarn env:dev drizzle-kit migrate"
+    "db:migrate": "yarn env:dev drizzle-kit migrate",
+    "db:drop": "yarn env:dev drizzle-kit drop"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.66",
