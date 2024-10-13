@@ -7,19 +7,25 @@ import { generateReceipt } from "./openai";
 export async function initClientAndGetQRCode({
   userId,
   businessDescription,
+  logQR = false,
 }: {
   userId: string;
   businessDescription: string;
+  logQR?: boolean
 }) {
+
+  let client: any; 
+
   async function onMessage(message: Message) {
     console.log("Received:", message);
 
     const generatedReceipt = await generateReceipt({
       message,
       businessDescription,
+      client,
     });
     console.log("generatedReceipt:", generatedReceipt);
-    if (!generatedReceipt) {
+    if (!generatedReceipt) {``
       return;
     }
 
@@ -43,10 +49,9 @@ export async function initClientAndGetQRCode({
           buyer: generatedReceipt.buyer ?? "-",
           phoneNumber: senderPhone,
           address: generatedReceipt.address ?? "-",
-          purchaseDate: generatedReceipt.purchaseDate
-            ? new Date(generatedReceipt.purchaseDate)
-            : new Date(),
+          purchaseDate: new Date(),
           productDescription: generatedReceipt.productDescription ?? "-",
+          status: "FLAGGED",
           additionalData:
             generatedReceipt.reason ?? "Unknown reason for failure",
         });
@@ -67,9 +72,10 @@ export async function initClientAndGetQRCode({
           res("Already logged in");
         }
       },
-      { logQR: false },
-    ).then((client) => {
+      { logQR },
+    ).then((createdClient) => {
       console.log("Initializing WhatsApp Venom...");
+      client = createdClient; 
 
       client.onMessage(onMessage);
     });

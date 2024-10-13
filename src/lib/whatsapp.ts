@@ -6,7 +6,7 @@ import { create, Message } from "venom-bot";
 import { z } from "zod";
 
 const BUSINESS_DESCRIPTION = "An online flower shop";
-const BUSINESS_RECEIPT =
+export const BUSINESS_RECEIPT =
   "Buyer's name, product description (name, and qty), date of purchase, address";
 
 export async function startWhatsappClient({ userId }: { userId: string }) {
