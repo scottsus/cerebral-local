@@ -1,0 +1,61 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Version control
+.git
+.gitignore
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist
+build
+out
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage
+
+# Logs
+logs
+*.log
+
+# Temporary files
+tmp
+temp
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+
+# Other common files to ignore
+*.csv
+*.dat
+*.gz
+*.iso
+*.jar
+*.tar
+*.zip
+*.tgz
