@@ -1,21 +1,27 @@
 import express from "express";
 
-import { createClientAndGetQRCode } from "./lib/whatsapp-v2";
+import { initClientAndGetQRCode } from "./lib/whatsapp-v2";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.get("/connect/:sessionId", async (req, res) => {
-  const { sessionId } = req.params;
+app.get("/connect/:userId", async (req, res) => {
+  // This must correspond with the userId in the DB
+  const { userId } = req.params;
 
   try {
-    const qrCode = await createClientAndGetQRCode(sessionId);
+    // TODO: Grab the actual business
+    const businessDescription = "You are a small business.";
+    const qrCode = await initClientAndGetQRCode({
+      userId,
+      businessDescription,
+    });
 
-    res.status(200).json({ sessionId, qrCode });
+    res.status(200).json({ userId, qrCode });
   } catch (error) {
-    console.error(`Error creating session ${sessionId}:`, error);
+    console.error(`/connect/:userId: [${userId}]:`, error);
 
-    res.status(500).json({ error: "Failed to create session" });
+    res.status(500).json({ error: `Error creating session for ${userId}.` });
   }
 });
 

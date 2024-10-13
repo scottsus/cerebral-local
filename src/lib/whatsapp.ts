@@ -1,15 +1,15 @@
-import { create, Message } from "venom-bot";
-import { generateObject } from 'ai';
-import { openai } from '@ai-sdk/openai';
-import { z } from 'zod';
-import { db } from "~/server/db";
+import { openai } from "@ai-sdk/openai";
 import { receipts } from "~/schema/receipt";
+import { db } from "~/server/db";
+import { generateObject } from "ai";
+import { create, Message } from "venom-bot";
+import { z } from "zod";
 
+const BUSINESS_DESCRIPTION = "An online flower shop";
+const BUSINESS_RECEIPT =
+  "Buyer's name, product description (name, and qty), date of purchase, address";
 
-const BUSINESS_DESCRIPTION = "An online flower shop"
-const BUSINESS_RECEIPT = "Buyer's name, product description (name, and qty), date of purchase, address"
-
-export async function startWhatsappClient() {
+export async function startWhatsappClient({ userId }: { userId: string }) {
   const sessionName = new Date().toISOString().replace(/[:.]/g, "-");
   const client = await create({
     session: `session-${sessionName}`,
@@ -47,7 +47,7 @@ export async function startWhatsappClient() {
     // 2. If possible, add a new row to the DB: https://orm.drizzle.team/docs/data-querying
     // 3. For later: use AI to respond
 
-    console.log("Received whatsapp message")
+    console.log("Received whatsapp message");
 
     const receiptSchema = z.object({
       buyer: z.string(),
@@ -56,14 +56,14 @@ export async function startWhatsappClient() {
       address: z.string(),
       success: z.boolean(),
       reason: z.string().optional(),
-      status: z.string().optional()
+      status: z.string().optional(),
     });
 
-    console.log("Message body: ")
-    console.log(message.body)
-   
+    console.log("Message body: ");
+    console.log(message.body);
+
     const result = await generateObject({
-      model: openai('gpt-4-turbo'),
+      model: openai("gpt-4-turbo"),
       schema: receiptSchema,
       prompt: message.body,
       system: `You are an AI assistant helping a business taking its orders. These are the tasks you are going to do:
@@ -81,18 +81,19 @@ export async function startWhatsappClient() {
         The receipt of the business you are representing should consist of: ${BUSINESS_RECEIPT}`,
     });
 
-    console.log("Receipt Result: ")
-    console.log(result.object)
+    console.log("Receipt Result: ");
+    console.log(result.object);
 
     if (result.object.success === true) {
       try {
         await db.insert(receipts).values({
+          userId,
           buyer: result.object.buyer,
           productDescription: result.object.productDescription,
-          purchase_date: new Date(result.object.purchase_date), 
+          purchaseDate: new Date(result.object.purchase_date),
           address: result.object.address,
-          phone_num: message.sender.id.split('@')[0], 
-          additional_data: '', 
+          phoneNumber: message.sender.id.split("@")[0],
+          additionalData: "",
         });
         console.log("Receipt successfully inserted into the database.");
       } catch (error) {
@@ -101,22 +102,27 @@ export async function startWhatsappClient() {
     } else if (result.object.status != "invalid") {
       try {
         await db.insert(receipts).values({
-          buyer: result.object.buyer || 'Unknown', 
-          productDescription: result.object.productDescription || 'Unknown',
-          purchase_date: new Date(), 
-          address: result.object.address || 'Unknown',
-          phone_num: message.sender.id.split('@')[0], 
-          additional_data: result.object.reason || 'No reason provided', 
-          status: "Flagged"
+          userId,
+          buyer: result.object.buyer || "Unknown",
+          productDescription: result.object.productDescription || "Unknown",
+          purchaseDate: new Date(),
+          address: result.object.address || "Unknown",
+          phoneNumber: message.sender.id.split("@")[0],
+          additionalData: result.object.reason || "No reason provided",
         });
-        console.log("Receipt flagged and inserted into the database with additional data.");
+        console.log(
+          "Receipt flagged and inserted into the database with additional data.",
+        );
       } catch (error) {
-        console.error("Failed to insert flagged receipt into the database:", error);
+        console.error(
+          "Failed to insert flagged receipt into the database:",
+          error,
+        );
       }
     }
 
-    console.log("Returning response:")
-    return "test response"
+    console.log("Returning response:");
+    return "test response";
   }
 
   async function _startClient() {
@@ -130,4 +136,3 @@ export async function startWhatsappClient() {
 
   _startClient();
 }
-

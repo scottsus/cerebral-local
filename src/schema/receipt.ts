@@ -1,39 +1,48 @@
 import { sql } from "drizzle-orm";
 import {
   index,
+  pgEnum,
   pgTable,
   serial,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+
+import { users } from "./user";
+
+export const statusEnum = pgEnum("status", [
+  "INPROGRESS",
+  "COMPLETED",
+  "FLAGGED",
+  "CANCELLED",
+]);
 
 export const receipts = pgTable(
   "receipts",
   {
-    id: serial("id")
-      .primaryKey()
-      .notNull(),
-    buyer: varchar("buyer", { length: 256 }),
-    productDescription: text("product_description"),
-    phone_num: varchar("phone_num", { length: 15 }),
-    additional_data: text("additional_data"), 
-    address: varchar("address", { length: 256 }),
-    // business_owner: serial("id").references()
-    purchase_date: timestamp("purchase_date", { withTimezone: true })
+    id: serial("id").primaryKey().notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    buyer: text("buyer"),
+    phoneNumber: varchar("phone_number", { length: 15 }),
+    address: text("address"),
+    purchaseDate: timestamp("purchase_date", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
+    productDescription: text("product_description"),
+    additionalData: text("additional_data"),
+    status: statusEnum("status").default("INPROGRESS"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
       () => new Date(),
     ),
-    status: varchar("status", { length: 256 })
-      .default('In progress'),
-
   },
-  (example) => ({
-    idIdx: index("receipt_buyer_idx").on(example.buyer),
+  (table) => ({
+    idIdx: index("receipt_buyer_idx").on(table.buyer),
   }),
 );

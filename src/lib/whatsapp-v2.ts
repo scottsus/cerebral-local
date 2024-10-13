@@ -1,83 +1,64 @@
-import { openai } from "@ai-sdk/openai";
 import { receipts } from "~/schema/receipt";
 import { db } from "~/server/db";
-import { generateObject } from "ai";
 import { create, Message } from "venom-bot";
-import { z } from "zod";
 
-const BUSINESS_DESCRIPTION = "An online flower shop";
-const BUSINESS_RECEIPT =
-  "Buyer's name, product description (name, and qty), date of purchase, address";
+import { generateReceipt } from "./openai";
 
-export async function createClientAndGetQRCode(sessionId: string) {
+export async function initClientAndGetQRCode({
+  userId,
+  businessDescription,
+}: {
+  userId: string;
+  businessDescription: string;
+}) {
   async function onMessage(message: Message) {
-    const receiptSchema = z.object({
-      buyer: z.string(),
-      productDescription: z.string(),
-      purchase_date: z.string(),
-      address: z.string(),
-      success: z.boolean(),
-      reason: z.string().optional(),
+    console.log("Received:", message);
+
+    const generatedReceipt = await generateReceipt({
+      message,
+      businessDescription,
     });
+    console.log("generatedReceipt:", generatedReceipt);
+    if (!generatedReceipt) {
+      return;
+    }
 
-    const result = await generateObject({
-      model: openai("gpt-4-turbo"),
-      schema: receiptSchema,
-      prompt: message.body,
-      system: `You are an AI assistant helping a business taking its orders. These are the tasks you are going to do:
-        1. Receive messages.
-        2. Return a receipt depending on the message contents, with an extra field: success = true or false
-          a. If the message does not conform to the expected receipt, the success field should be false
-          b. If success = false, put another field, reason, explaining why it failed
-          c. Return the receipt in a string object format
-      
-        You should understand each business receipt models accordingly. 
-        The business you are representing is: ${BUSINESS_DESCRIPTION}
-        The receipt of the business you are representing should consist of: ${BUSINESS_RECEIPT}`,
-    });
+    try {
+      const senderPhone = message.sender.id.split("@")[0];
 
-    if (result.object.success === true) {
-      try {
+      if (generatedReceipt.success) {
         await db.insert(receipts).values({
-          buyer: result.object.buyer,
-          productDescription: result.object.productDescription,
-          purchase_date: new Date(result.object.purchase_date),
-          address: result.object.address,
-          phone_num: "",
-          flagged: false,
-          additional_data: "",
+          userId,
+          buyer: generatedReceipt.buyer,
+          phoneNumber: senderPhone,
+          address: generatedReceipt.address,
+          purchaseDate: new Date(generatedReceipt.purchaseDate),
+          productDescription: generatedReceipt.productDescription,
+          additionalData: "",
         });
-
-        console.log("Receipt successfully inserted into the database.");
-      } catch (error) {
-        console.error("Failed to insert receipt into the database:", error);
-      }
-    } else {
-      try {
+      } else {
+        // Best effort status logging
         await db.insert(receipts).values({
-          buyer: result.object.buyer || "Unknown",
-          productDescription: result.object.productDescription || "Unknown",
-          purchase_date: new Date(),
-          address: result.object.address || "Unknown",
-          phone_num: "",
-          flagged: true,
-          additional_data: result.object.reason || "No reason provided",
+          userId,
+          buyer: generatedReceipt.buyer ?? "-",
+          phoneNumber: senderPhone,
+          address: generatedReceipt.address ?? "-",
+          purchaseDate: generatedReceipt.purchaseDate
+            ? new Date(generatedReceipt.purchaseDate)
+            : new Date(),
+          productDescription: generatedReceipt.productDescription ?? "-",
+          additionalData:
+            generatedReceipt.reason ?? "Unknown reason for failure",
         });
-        console.log(
-          "Receipt flagged and inserted into the database with additional data.",
-        );
-      } catch (error) {
-        console.error(
-          "Failed to insert flagged receipt into the database:",
-          error,
-        );
       }
+    } catch (err) {
+      console.error("onMessage:", err);
     }
   }
 
   return new Promise((res) => {
     create(
-      sessionId,
+      userId,
       (base64QRCode) => {
         res(base64QRCode);
       },
@@ -90,11 +71,7 @@ export async function createClientAndGetQRCode(sessionId: string) {
     ).then((client) => {
       console.log("Initializing WhatsApp Venom...");
 
-      client.onMessage(async (message) => {
-        console.log("Received:", message);
-
-        onMessage(message);
-      });
+      client.onMessage(onMessage);
     });
   });
 }
