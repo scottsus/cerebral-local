@@ -6,13 +6,15 @@
   "license": "MIT",
   "scripts": {
     "env:dev": "dotenv -e .env",
-    "server": "yarn env:dev tsx server.ts",
+    "dev": "yarn env:dev tsx src/dev.ts",
+    "start": "yarn env:dev tsx src/server.ts",
     "db:studio": "yarn env:dev drizzle-kit studio",
     "db:generate": "yarn drizzle-kit generate",
     "db:migrate": "yarn env:dev drizzle-kit migrate"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.66",
+    "@types/express": "^5.0.0",
     "ai": "^3.4.9",
     "dotenv-cli": "^7.4.2",
     "drizzle-kit": "^0.22.7",
