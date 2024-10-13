@@ -2,6 +2,9 @@ import { create, Message } from "venom-bot";
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
+import { db } from "~/server/db";
+import { receipts } from "~/schema/receipt";
+
 
 const BUSINESS_DESCRIPTION = "An online flower shop"
 const BUSINESS_RECEIPT = "Buyer's name, product description (name, and qty), date of purchase, address"
@@ -51,6 +54,7 @@ export async function startWhatsappClient() {
       productDescription: z.string(),
       purchase_date: z.string(),
       address: z.string(),
+
       // createdAt: z.string(),
       // updatedAt: z.string(),
       success: z.boolean(),
@@ -79,10 +83,40 @@ export async function startWhatsappClient() {
     console.log("Receipt Result: ")
     console.log(result.object)
 
-    // return result.toAIStreamResponse()
+    if (result.object.success === true) {
+      try {
+        await db.insert(receipts).values({
+          buyer: result.object.buyer,
+          productDescription: result.object.productDescription,
+          purchase_date: new Date(result.object.purchase_date), 
+          address: result.object.address,
+          phone_num: '', 
+          flagged: false, 
+          additional_data: '', 
+        });
+    
+        console.log("Receipt successfully inserted into the database.");
+      } catch (error) {
+        console.error("Failed to insert receipt into the database:", error);
+      }
+    } else {
+      try {
+        await db.insert(receipts).values({
+          buyer: result.object.buyer || 'Unknown', 
+          productDescription: result.object.productDescription || 'Unknown',
+          purchase_date: new Date(), 
+          address: result.object.address || 'Unknown',
+          phone_num: '', 
+          flagged: true, 
+          additional_data: result.object.reason || 'No reason provided', 
+        });
+        console.log("Receipt flagged and inserted into the database with additional data.");
+      } catch (error) {
+        console.error("Failed to insert flagged receipt into the database:", error);
+      }
     
   }
-
+  }
   async function _startClient() {
     console.log("WhatsApp bot started...");
 
@@ -96,3 +130,4 @@ export async function startWhatsappClient() {
 
   _startClient();
 }
+
