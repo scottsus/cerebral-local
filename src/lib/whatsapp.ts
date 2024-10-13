@@ -75,7 +75,9 @@ export async function startWhatsappClient({ userId }: { userId: string }) {
           c. Return the receipt in a string object format
           d. If there are multiple items within the same order, strictly normalize the list of items into the following format: 'item name1:qty1, item name2:qty2, ...'
           e. If the message does not appear to be attempting to order something like asking a question or random characters, status = 'invalid', otherwise leave it blank. When messages appear to order something, even if it doesn't make sense with the products that the business you are representing, do not put the status as invalid.
-      
+          f. Whenever you prompt someone to buy or someone is interested in buying something, try to get them to fill the receipt format: ${BUSINESS_RECEIPT}
+          g. Often remind the customer what your business is about and what products your business can expect you to have.
+
         You should understand each business receipt models accordingly. 
         The business you are representing is: ${BUSINESS_DESCRIPTION}
         The receipt of the business you are representing should consist of: ${BUSINESS_RECEIPT}`,
