@@ -18,12 +18,17 @@ export const listenerStatusEnum = pgEnum("listener_status", [
 export const users = pgTable(
   "users",
   {
-    id: uuid("id").primaryKey().notNull(),
+    id: uuid("id")
+      .default(sql`gen_random_uuid()`)
+      .primaryKey()
+      .notNull(),
     name: text("name"),
+    email: text("email"),
     phoneNumber: varchar("phone_number", { length: 15 }),
     businessDescription: text("business_description"),
     welcomeMessage: text("welcome_message"),
-    listenerStatus: listenerStatusEnum("listener_status"),
+    listenerStatus:
+      listenerStatusEnum("listener_status").default("INITIALIZING"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),

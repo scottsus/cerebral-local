@@ -2,13 +2,13 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject } from "ai";
 import { Message } from "venom-bot";
 import { z } from "zod";
+
 import { BUSINESS_RECEIPT } from "./whatsapp";
-import { Client } from "pg";
 
 export async function generateReceipt({
   message,
   businessDescription,
-  client
+  client,
 }: {
   message: Message;
   businessDescription: string;
@@ -23,7 +23,7 @@ export async function generateReceipt({
     success: z.boolean(),
     reason: z.string().optional(),
     response: z.string().optional(),
-    shouldResponse: z.boolean()
+    shouldResponse: z.boolean(),
   });
 
   try {

@@ -1,6 +1,6 @@
 import { receipts } from "~/schema/receipt";
 import { db } from "~/server/db";
-import { create, Message } from "venom-bot";
+import { create, Message, Whatsapp } from "venom-bot";
 
 import { generateReceipt } from "./openai";
 
@@ -11,10 +11,9 @@ export async function initClientAndGetQRCode({
 }: {
   userId: string;
   businessDescription: string;
-  logQR?: boolean
+  logQR?: boolean;
 }) {
-
-  let client: any; 
+  let client: Whatsapp | null;
 
   async function onMessage(message: Message) {
     console.log("Received:", message);
@@ -25,7 +24,8 @@ export async function initClientAndGetQRCode({
       client,
     });
     console.log("generatedReceipt:", generatedReceipt);
-    if (!generatedReceipt) {``
+    if (!generatedReceipt) {
+      ``;
       return;
     }
 
@@ -75,7 +75,7 @@ export async function initClientAndGetQRCode({
       { logQR },
     ).then((createdClient) => {
       console.log("Initializing WhatsApp Venom...");
-      client = createdClient; 
+      client = createdClient;
 
       client.onMessage(onMessage);
     });
