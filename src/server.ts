@@ -1,6 +1,6 @@
 import express from "express";
 
-import { startWhatsappClient } from "./lib/whatsapp";
+import { createClientAndGetQRCode } from "./lib/whatsapp-v2";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,15 +9,12 @@ app.get("/connect/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
   try {
-    await startWhatsappClient();
+    const qrCode = await createClientAndGetQRCode(sessionId);
 
-    // You can add any additional setup or logic here
-
-    res
-      .status(200)
-      .json({ message: `Session ${sessionId} created successfully` });
+    res.status(200).json({ sessionId, qrCode });
   } catch (error) {
     console.error(`Error creating session ${sessionId}:`, error);
+
     res.status(500).json({ error: "Failed to create session" });
   }
 });

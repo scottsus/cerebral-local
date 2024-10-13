@@ -45,5 +45,7 @@ RUN mkdir -p /app/tokens && chmod 777 /app/tokens
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
+EXPOSE 3000
+
 # Run the application
-CMD ["yarn", "server"]
+CMD ["yarn", "start"]
