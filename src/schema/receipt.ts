@@ -19,6 +19,7 @@ export const receipts = pgTable(
     phone_num: varchar("phone_num", { length: 15 }),
     additional_data: text("additional_data"), 
     address: varchar("address", { length: 256 }),
+    // business_owner: serial("id").references()
     purchase_date: timestamp("purchase_date", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -29,7 +30,7 @@ export const receipts = pgTable(
       () => new Date(),
     ),
     status: varchar("status", { length: 256 })
-      .default('in progress'),
+      .default('In progress'),
 
   },
   (example) => ({

@@ -55,7 +55,8 @@ export async function startWhatsappClient() {
       purchase_date: z.string(),
       address: z.string(),
       success: z.boolean(),
-      reason: z.string().optional()
+      reason: z.string().optional(),
+      status: z.string().optional()
     });
 
     console.log("Message body: ")
@@ -67,11 +68,13 @@ export async function startWhatsappClient() {
       prompt: message.body,
       system: `You are an AI assistant helping a business taking its orders. These are the tasks you are going to do:
         1. Receive messages.
-        2. Return a receipt depending on the message contents, with an extra field: success = true or false
+        2. Return a receipt depending on the message contents:
+          a. Add an extra field: success = true or false
           a. If the message does not conform to the expected receipt, the success field should be false
           b. If success = false, put another field, reason, explaining why it failed
           c. Return the receipt in a string object format
           d. If there are multiple items within the same order, strictly normalize the list of items into the following format: 'item name1:qty1, item name2:qty2, ...'
+          e. If the message does not appear to be attempting to order something like asking a question or random characters, status = 'invalid', otherwise leave it blank. When messages appear to order something, even if it doesn't make sense with the products that the business you are representing, do not put the status as invalid.
       
         You should understand each business receipt models accordingly. 
         The business you are representing is: ${BUSINESS_DESCRIPTION}
@@ -95,7 +98,7 @@ export async function startWhatsappClient() {
       } catch (error) {
         console.error("Failed to insert receipt into the database:", error);
       }
-    } else {
+    } else if (result.object.status != "invalid") {
       try {
         await db.insert(receipts).values({
           buyer: result.object.buyer || 'Unknown', 
