@@ -31,6 +31,9 @@ export const receipts = pgTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
       () => new Date(),
     ),
+    status: varchar("status", { length: 256 })
+      .default('in progress'),
+
   },
   (example) => ({
     idIdx: index("receipt_buyer_idx").on(example.buyer),

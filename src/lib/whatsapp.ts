@@ -54,9 +54,6 @@ export async function startWhatsappClient() {
       productDescription: z.string(),
       purchase_date: z.string(),
       address: z.string(),
-
-      // createdAt: z.string(),
-      // updatedAt: z.string(),
       success: z.boolean(),
       reason: z.string().optional()
     });
@@ -94,7 +91,6 @@ export async function startWhatsappClient() {
           flagged: false, 
           additional_data: '', 
         });
-    
         console.log("Receipt successfully inserted into the database.");
       } catch (error) {
         console.error("Failed to insert receipt into the database:", error);
@@ -114,16 +110,14 @@ export async function startWhatsappClient() {
       } catch (error) {
         console.error("Failed to insert flagged receipt into the database:", error);
       }
-    
+    }
   }
-  }
+
   async function _startClient() {
     console.log("WhatsApp bot started...");
 
     client.onMessage(async (message) => {
       console.log("Received Message:", message);
-
-      // sampleOnMessage(message);
       onMessage(message);
     });
   }
