@@ -71,6 +71,7 @@ export async function startWhatsappClient() {
           a. If the message does not conform to the expected receipt, the success field should be false
           b. If success = false, put another field, reason, explaining why it failed
           c. Return the receipt in a string object format
+          d. If there are multiple items within the same order, strictly normalize the list of items into the following format: 'item name1:qty1, item name2:qty2, ...'
       
         You should understand each business receipt models accordingly. 
         The business you are representing is: ${BUSINESS_DESCRIPTION}
